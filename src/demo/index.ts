@@ -208,7 +208,7 @@ documentReady(function() {
   if (bpmnParameterValue) {
     const bpmn = decodeURIComponent(bpmnParameterValue);
     log('BPMN auto loading');
-    bpmnVisualization.load(bpmn);
+    loadBpmn(bpmn);
     log('BPMN auto loading completed');
   } else {
     log('No BPMN auto loading');
