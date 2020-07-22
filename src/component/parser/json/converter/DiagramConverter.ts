@@ -27,13 +27,14 @@ import Label, { Font } from '../../../../model/bpmn/Label';
 import { MessageVisibleKind } from '../../../../model/bpmn/edge/MessageVisibleKind';
 import { BPMNDiagram, BPMNEdge, BPMNLabel, BPMNLabelStyle, BPMNShape } from '../../xml/bpmn-json-model/BPMNDI';
 import { Point } from '../../xml/bpmn-json-model/DC';
+import { ShapeBpmnElementKind } from '../../../../model/bpmn/shape/ShapeBpmnElementKind';
 
-function findProcessElement(participantId: string): ShapeBpmnElement {
+function findProcessElement(participantId: string): ShapeBpmnElement | undefined {
   const participant = findProcessRefParticipant(participantId);
   if (participant) {
-    const originalProcessBpmnElement = findProcessBpmnElement(participant.processRef);
-    const name = participant.name || originalProcessBpmnElement.name;
-    return new ShapeBpmnElement(participant.id, name, originalProcessBpmnElement.kind, originalProcessBpmnElement.parentId);
+    const originalProcessBpmnElement = findProcessBpmnElement(participant.processRef as string);
+    const name = participant.name || originalProcessBpmnElement?.name;
+    return new ShapeBpmnElement(participant.id, name as string, originalProcessBpmnElement?.kind as ShapeBpmnElementKind, originalProcessBpmnElement?.parentId);
   }
 }
 
@@ -115,8 +116,8 @@ export default class DiagramConverter extends AbstractConverter<BpmnModel> {
     return convertedShapes;
   }
 
-  private deserializeShape(shape: BPMNShape, findShapeElement: (bpmnElement: string) => ShapeBpmnElement): Shape | undefined {
-    const bpmnElement = findShapeElement(shape.bpmnElement);
+  private deserializeShape(shape: BPMNShape, findShapeElement: (bpmnElement: string) => ShapeBpmnElement | undefined): Shape | undefined {
+    const bpmnElement = findShapeElement(shape.bpmnElement as string);
     if (bpmnElement) {
       const bounds = this.deserializeBounds(shape);
 
@@ -127,12 +128,12 @@ export default class DiagramConverter extends AbstractConverter<BpmnModel> {
         }
       }
 
-      const label = this.deserializeLabel(shape.BPMNLabel, shape.id);
+      const label = this.deserializeLabel(shape.BPMNLabel as string, shape.id as string);
       return new Shape(shape.id, bpmnElement, bounds, label, shape.isExpanded);
     }
   }
 
-  private deserializeBounds(boundedElement: BPMNShape | BPMNLabel): Bounds {
+  private deserializeBounds(boundedElement: BPMNShape | BPMNLabel): Bounds | undefined {
     const bounds = boundedElement.Bounds;
     if (bounds) {
       return this.jsonConvert.deserializeObject(bounds, Bounds);
@@ -149,15 +150,15 @@ export default class DiagramConverter extends AbstractConverter<BpmnModel> {
     });
   }
 
-  private deserializeWaypoints(waypoint: Point[]): Waypoint[] {
+  private deserializeWaypoints(waypoint: Point[]): Waypoint[] | undefined {
     if (waypoint) {
       return this.jsonConvert.deserializeArray(ensureIsArray(waypoint), Waypoint);
     }
   }
 
-  private deserializeLabel(bpmnLabel: string | BPMNLabel, id: string): Label {
+  private deserializeLabel(bpmnLabel: string | BPMNLabel, id: string): Label | undefined {
     if (bpmnLabel && typeof bpmnLabel === 'object') {
-      const font = this.findFont(bpmnLabel.labelStyle, id);
+      const font = this.findFont(bpmnLabel.labelStyle as string, id);
       const bounds = this.deserializeBounds(bpmnLabel);
 
       if (font || bounds) {
@@ -166,7 +167,7 @@ export default class DiagramConverter extends AbstractConverter<BpmnModel> {
     }
   }
 
-  private findFont(labelStyle: string, id: string): Font {
+  private findFont(labelStyle: string, id: string): Font | undefined {
     let font;
     if (labelStyle) {
       font = this.convertedFonts.get(labelStyle);

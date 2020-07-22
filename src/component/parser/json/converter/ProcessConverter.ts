@@ -42,23 +42,25 @@ const bpmnEventKinds = Object.values(ShapeBpmnEventKind).filter(kind => {
   return kind != ShapeBpmnEventKind.NONE;
 });
 
-export function findFlowNodeBpmnElement(id: string): ShapeBpmnElement {
+//TODO: the following methods should perhaps Throw Errors in case of not finding element - to be handled in following issues:
+// See: #35 and #54
+export function findFlowNodeBpmnElement(id: string): ShapeBpmnElement | undefined {
   return convertedFlowNodeBpmnElements.find(i => i.id === id);
 }
 
-export function findLaneBpmnElement(id: string): ShapeBpmnElement {
+export function findLaneBpmnElement(id: string): ShapeBpmnElement | undefined {
   return convertedLaneBpmnElements.find(i => i.id === id);
 }
 
-export function findProcessBpmnElement(id: string): ShapeBpmnElement {
+export function findProcessBpmnElement(id: string): ShapeBpmnElement | undefined {
   return convertedProcessBpmnElements.find(i => i.id === id);
 }
 
-export function findSequenceFlow(id: string): SequenceFlow {
+export function findSequenceFlow(id: string): SequenceFlow | undefined {
   return convertedSequenceFlows.find(i => i.id === id);
 }
 
-export function findAssociationFlow(id: string): AssociationFlow {
+export function findAssociationFlow(id: string): AssociationFlow | undefined {
   return convertedAssociationFlows.find(i => i.id === id);
 }
 
@@ -69,7 +71,10 @@ interface EventDefinition {
 
 @JsonConverter
 export default class ProcessConverter extends AbstractConverter<Process> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //TODO: the following method should perhaps Throw Error if no return at the end - to be handled in following issues:
+  // See: #35 and #54
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  // @ts-ignore
   deserialize(processes: Array<TProcess> | TProcess): Process {
     try {
       // Deletes everything in the array, which does hit other references. For better performance.
@@ -89,17 +94,16 @@ export default class ProcessConverter extends AbstractConverter<Process> {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parseProcess(process: TProcess): void {
     const processId = process.id;
-    convertedProcessBpmnElements.push(new ShapeBpmnElement(processId, process.name, ShapeBpmnElementKind.POOL));
+    convertedProcessBpmnElements.push(new ShapeBpmnElement(processId as string, process.name as string, ShapeBpmnElementKind.POOL));
 
     // flow nodes
-    ShapeUtil.flowNodeKinds().forEach(kind => this.buildFlowNodeBpmnElements(processId, process[kind], kind));
+    ShapeUtil.flowNodeKinds().forEach(kind => this.buildFlowNodeBpmnElements(processId as string, process[kind], kind));
 
     // containers
-    this.buildLaneBpmnElements(processId, process[ShapeBpmnElementKind.LANE]);
-    this.buildLaneSetBpmnElements(processId, process['laneSet']);
+    this.buildLaneBpmnElements(processId as string, process[ShapeBpmnElementKind.LANE]);
+    this.buildLaneSetBpmnElements(processId as string, process['laneSet']);
 
     // flows
     this.buildSequenceFlows(process[FlowKind.SEQUENCE_FLOW]);
@@ -130,6 +134,10 @@ export default class ProcessConverter extends AbstractConverter<Process> {
     });
   }
 
+  //TODO: the following method should perhaps Throw Error if no return at the end - to be handled in following issues:
+  // See: #35 and #54
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  // @ts-ignore
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private buildShapeBpmnEvent(bpmnElement: any, elementKind: BpmnEventKind, processId: string): ShapeBpmnEvent {
     const eventDefinitions = this.getEventDefinitions(bpmnElement);
@@ -170,9 +178,9 @@ export default class ProcessConverter extends AbstractConverter<Process> {
 
   private buildShapeBpmnSubProcess(bpmnElement: TSubProcess, processId: string): ShapeBpmnSubProcess {
     if (!bpmnElement.triggeredByEvent) {
-      return new ShapeBpmnSubProcess(bpmnElement.id, bpmnElement.name, ShapeBpmnSubProcessKind.EMBEDDED, processId);
+      return new ShapeBpmnSubProcess(bpmnElement.id as string, bpmnElement.name as string, ShapeBpmnSubProcessKind.EMBEDDED, processId);
     }
-    return new ShapeBpmnSubProcess(bpmnElement.id, bpmnElement.name, ShapeBpmnSubProcessKind.EVENT, processId);
+    return new ShapeBpmnSubProcess(bpmnElement.id as string, bpmnElement.name as string, ShapeBpmnSubProcessKind.EVENT, processId);
   }
 
   private buildLaneSetBpmnElements(processId: string, laneSets: Array<TLaneSet> | TLaneSet): void {
@@ -220,7 +228,7 @@ export default class ProcessConverter extends AbstractConverter<Process> {
   }
 
   private getSequenceFlowKind(sequenceFlow: TSequenceFlow): SequenceFlowKind {
-    if (defaultSequenceFlowIds.includes(sequenceFlow.id)) {
+    if (defaultSequenceFlowIds.includes(sequenceFlow.id as string)) {
       return SequenceFlowKind.DEFAULT;
     } else {
       const sourceShapeBpmnElement = findFlowNodeBpmnElement(sequenceFlow.sourceRef);

@@ -29,6 +29,11 @@ export default class MxGraphConfigurator {
   private readonly graph: mxGraph;
 
   constructor(container: HTMLElement) {
+    //TODO: Requires changes in mxgraph-type-definitions as in the spec it is mentioned clearly:
+    // '... If no root is specified then a new root mxCell with a default layer is created. ...'
+    // See: https://jgraph.github.io/mxgraph/docs/js-api/files/model/mxGraphModel-js.html#mxGraphModel.mxGraphModel
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
     this.graph = new mxGraph(container, new mxGraphModel(null));
     this.configureGraph();
     new StyleConfigurator(this.graph).configureStyles();

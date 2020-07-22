@@ -32,9 +32,9 @@ export class Definitions {
 
   // bpmnModel must be the last argument as it requires data built by the other converter.
   constructor(collaboration?: Collaboration, process?: Process, bpmnModel?: BpmnModel) {
-    this._collaboration = collaboration;
-    this._process = process;
-    this._bpmnModel = bpmnModel;
+    this._collaboration = collaboration as Collaboration;
+    this._process = process as Process;
+    this._bpmnModel = bpmnModel as BpmnModel;
   }
 
   public get bpmnModel(): BpmnModel {

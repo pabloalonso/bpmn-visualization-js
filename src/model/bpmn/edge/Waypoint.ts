@@ -23,8 +23,8 @@ export default class Waypoint {
   private readonly _y: number;
 
   constructor(x?: number, y?: number) {
-    this._x = x;
-    this._y = y;
+    this._x = x as number;
+    this._y = y as number;
   }
 
   public get y(): number {

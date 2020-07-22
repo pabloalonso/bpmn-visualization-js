@@ -15,7 +15,7 @@
  */
 import { JsonConverter } from 'json2typescript';
 import { AbstractConverter, ensureIsArray } from './AbstractConverter';
-import { Participant } from '../../../../model/bpmn/shape/ShapeBpmnElement';
+import ShapeBpmnElement, { Participant } from '../../../../model/bpmn/shape/ShapeBpmnElement';
 import { Collaboration } from '../Definitions';
 import { MessageFlow } from '../../../../model/bpmn/edge/Flow';
 import { FlowKind } from '../../../../model/bpmn/edge/FlowKind';
@@ -26,20 +26,24 @@ import { TMessageFlow } from '../../xml/bpmn-json-model/baseElement/baseElement'
 const convertedProcessRefParticipants: Participant[] = [];
 const convertedMessageFlows: MessageFlow[] = [];
 
-export function findProcessRefParticipant(id: string): Participant {
+export function findProcessRefParticipant(id: string): Participant | undefined {
   return convertedProcessRefParticipants.find(i => i.id === id);
 }
 
-export function findProcessRefParticipantByProcessRef(processRef: string): Participant {
+export function findProcessRefParticipantByProcessRef(processRef: string): Participant | undefined {
   return convertedProcessRefParticipants.find(i => i.processRef === processRef);
 }
 
-export function findMessageFlow(id: string): MessageFlow {
+export function findMessageFlow(id: string): MessageFlow | undefined {
   return convertedMessageFlows.find(i => i.id === id);
 }
 
 @JsonConverter
 export default class CollaborationConverter extends AbstractConverter<Collaboration> {
+  //TODO: the following method should perhaps Throw Error if no return at the end - to be handled in following issues:
+  // See: #35 and #54
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  // @ts-ignore
   deserialize(collaboration: TCollaboration): Collaboration {
     try {
       // Deletes everything in the array, which does hit other references. For better performance.

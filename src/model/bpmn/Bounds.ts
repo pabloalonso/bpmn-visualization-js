@@ -30,10 +30,10 @@ export default class Bounds {
   private _height: number;
 
   public constructor(x?: number, y?: number, width?: number, height?: number) {
-    this._x = x;
-    this._y = y;
-    this._width = width;
-    this._height = height;
+    this._x = x as number;
+    this._y = y as number;
+    this._width = width as number;
+    this._height = height as number;
   }
 
   get height(): number {
