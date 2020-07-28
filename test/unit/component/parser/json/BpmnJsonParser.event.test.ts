@@ -98,10 +98,10 @@ function executeEventCommonTests(
   } else {
     titlesForEventDefinitionIsAttributeOf = [
       [`'${bpmnKind}' has '${eventDefinitionKind}EventDefinition' & no 'eventDefinitionRef'`, EventDefinitionOn.EVENT],
-      // [
-      //   `'definitions' has '${eventDefinitionKind}EventDefinition' and '${bpmnKind}' has no '${eventDefinitionKind}EventDefinition' & 'eventDefinitionRef'`,
-      //   EventDefinitionOn.DEFINITIONS,
-      // ],
+      [
+        `'definitions' has '${eventDefinitionKind}EventDefinition' and '${bpmnKind}' has no '${eventDefinitionKind}EventDefinition' & 'eventDefinitionRef'`,
+        EventDefinitionOn.DEFINITIONS,
+      ],
     ];
   }
   describe.each(titlesForEventDefinitionIsAttributeOf)(`when %s`, (titleForEventDefinitionIsAttributeOf: string, eventDefinitionOn: EventDefinitionOn) => {
@@ -218,12 +218,14 @@ function executeEventCommonTests(
     }
   });
 
-  // it(`should NOT convert, when 'definitions' has ${eventDefinitionKind}EventDefinition and '${bpmnKind}' has ${eventDefinitionKind}EventDefinition & eventDefinitionRef${specificTitle}`, () => {
-  //   const json = buildDefinitionsAndProcessWithTask();
-  //   addEvent(json, bpmnKind, {eventDefinitionKind, EventDefinitionOn.BOTH,} specificBuildEventParameter);
-  //
-  //   parseJsonAndExpectOnlyFlowNodes(json, 0);
-  // });
+  if (expectedShapeBpmnEventKind !== ShapeBpmnEventKind.NONE) {
+    it(`should NOT convert, when 'definitions' has ${eventDefinitionKind}EventDefinition and '${bpmnKind}' has ${eventDefinitionKind}EventDefinition & eventDefinitionRef${specificTitle}`, () => {
+      const json = buildDefinitionsAndProcessWithTask();
+      addEvent(json, bpmnKind, { eventDefinitionKind, eventDefinitionOn: EventDefinitionOn.BOTH }, specificBuildEventParameter);
+
+      parseJsonAndExpectOnlyFlowNodes(json, 0);
+    });
+  }
 }
 
 describe('parse bpmn as json for all events', () => {
